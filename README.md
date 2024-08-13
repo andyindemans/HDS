@@ -1,10 +1,11 @@
 # HDS
-Acronym: Home Docker Services (Hades for readability) A docker-compose environment which is used in my home for hosting services
+Acronym: Home Docker Services (Hades for readability) 
+A docker-compose environment which is used in my home for hosting services
 
 # Before starting:
-## First make sure Docker is properly installed and configured
+# First make sure Docker is properly installed and configured
 
-# Install docker
+## Install docker
 
 Install the `docker.io` package.
 ```bash
@@ -24,7 +25,7 @@ sudo usermod -a -G docker $USER
 The effects are only visible after the user logs out and back in again.
 
 
-# Install docker-compose
+## Install docker-compose
 
 Download the `docker-compose` service
 ```bash
