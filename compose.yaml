@@ -1,0 +1,44 @@
+---
+name: hds
+services:
+  traefik:
+    profiles:
+      - traefik
+      - backend
+    image: "traefik:v2.9"
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.http.address=:${TRAEFIK_HTTP_PORT}"
+      - "--entrypoints.traefik.address=:65535"
+    ports:
+      - "${TRAEFIK_HTTP_PORT}:${TRAEFIK_HTTP_PORT}"
+    volumes:
+      - "${DOCKER_SOCK}:/var/run/docker.sock:ro"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.localhost`)"
+      - "traefik.http.routers.traefik.entrypoints=http"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+    restart: unless-stopped
+
+  dozzle:
+    image: "amir20/dozzle:latest"
+    profiles:
+      - dozzle
+      - backend
+    volumes:
+      - "${DOCKER_SOCK}:/var/run/docker.sock:ro"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dozzle.rule=Host(`dozzle.localhost`)"
+      - "traefik.http.routers.dozzle.entrypoints=http"
+      - "traefik.http.services.dozzle.loadbalancer.server.port=8080"
+    restart: unless-stopped
+
+networks:
+  default:
+    name: ${COMPOSE_NETWORK}
+    external: ${COMPOSE_NETWORK_EXT}
