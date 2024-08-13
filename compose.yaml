@@ -12,10 +12,21 @@ services:
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.http.address=:${TRAEFIK_HTTP_PORT}"
       - "--entrypoints.traefik.address=:65535"
+      - "--entrypoints.http.forwardedHeaders.insecure=true"
+      - "--entrypoints.https.forwardedHeaders.insecure=true"
+      - "--entrypoints.http.forwardedHeaders.trustedIPs=0.0.0.0/0"
+      - "--entrypoints.https.forwardedHeaders.trustedIPs=0.0.0.0/0"
+      - "--entrypoints.https.address=:${TRAEFIK_HTTPS_PORT}"
+      - "--certificatesresolvers.mydnschallenge.acme.httpchallenge=true"
+      - "--certificatesresolvers.mydnschallenge.acme.httpchallenge.entrypoint=http"
+      - "--certificatesresolvers.mydnschallenge.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.mydnschallenge.acme.storage=/acme.json"
     ports:
       - "${TRAEFIK_HTTP_PORT}:${TRAEFIK_HTTP_PORT}"
+      - "${TRAEFIK_HTTPS_PORT}:${TRAEFIK_HTTPS_PORT}"
     volumes:
       - "${DOCKER_SOCK}:/var/run/docker.sock:ro"
+      - "./Docker/Traefik/acme.json:/acme.json"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.rule=Host(`traefik.localhost`)"
@@ -37,6 +48,47 @@ services:
       - "traefik.http.routers.dozzle.entrypoints=http"
       - "traefik.http.services.dozzle.loadbalancer.server.port=8080"
     restart: unless-stopped
+
+  nextcloud:
+    image: "nextcloud"
+    profiles:
+      - nextcloud
+      - backend
+    volumes:
+      - "/Data:/var/www/html/data"
+    environment:
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nextcloud.rule=Host(`nextcloud.localhost`)"
+      - "traefik.http.routers.nextcloud.entrypoints=http"
+      - "traefik.http.routers.nextcloud-secure.rule=Host(`nextcloud.localhost`)"
+      - "traefik.http.routers.nextcloud-secure.entrypoints=https"
+      - "traefik.http.routers.nextcloud-secure.tls.certresolver=mydnschallenge"
+      - "traefik.http.services.nextcloud.loadbalancer.server.port=80"
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: "mariadb"
+    profiles:
+      - db
+      - backend
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+      - "db_data:/var/lib/mysql"
+    restart: unless-stopped
+
+volumes:
+  db_data:
 
 networks:
   default:
