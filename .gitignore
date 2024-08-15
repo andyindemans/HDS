@@ -5,9 +5,7 @@ venv/*
 Docker/Traefik/acme.json
 
 # NextCloud
-Storage/NextCloud/Data/*
-Storage/NextCloud/App/*
+Storage/NextCloud/*
 
 # Paperless
-Storage/Paperless/Data/*
-Storage/Paperless/Media/*
+Storage/Paperless/*
