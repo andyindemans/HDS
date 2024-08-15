@@ -6,6 +6,7 @@ services:
       - traefik
       - backend
     image: docker.io/library/traefik:v3.1.2
+    container_name: hds-traefik
     command:
       - "--api.insecure=true"
       - "--providers.docker=true"
@@ -37,6 +38,7 @@ services:
 
   dozzle:
     image: "amir20/dozzle:latest"
+    container_name: hds-dozzle
     profiles:
       - dozzle
       - backend
@@ -63,12 +65,13 @@ services:
 
   nextcloud:
     image: "nextcloud"
+    container_name: hds-nextcloud
     profiles:
       - nextcloud
       - backend
     volumes:
-      - "${NEXTCLOUD_DIR}:/var/www/html"
-      - "${DATA_DIR}:/var/www/html/data"
+      - "${NEXTCLOUD_APP_DIR}:/var/www/html"
+      - "${NEXTCLOUD_DATA_DIR}:/var/www/html/data"
     environment:
       - MYSQL_HOST=${MYSQL_HOST}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
@@ -88,6 +91,7 @@ services:
 
   db:
     image: "mariadb"
+    container_name: hds-db
     profiles:
       - db
       - backend
@@ -100,6 +104,51 @@ services:
       - "db_data:/var/lib/mysql"
     restart: unless-stopped
 
+  redis:
+    image: redis:alpine
+    container_name: hds-redis
+    profiles:
+      - redis
+      - media
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    volumes:
+    - "./Docker/Redis/redis.conf:/usr/local/etc/redis/redis.conf"
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.redis.rule=Host(`hds.redis`)"
+      - "traefik.http.routers.redis.entrypoints=http"
+      - "traefik.http.services.redis.loadbalancer.server.port=6379"
+
+  paperless-ngx:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: hds-paperless
+    profiles:
+      - paperless
+      - media
+    ports:
+      - 8000:8000
+    depends_on:
+      - redis
+    volumes:
+      - "${PAPERLESS_DATA_DIR}:/usr/src/paperless/data"
+      - "${PAPERLESS_MEDIA_DIR}:/usr/src/paperless/media"
+    environment:
+      - PAPERLESS_ADMIN_USER=${PAPERLESS_ADMIN_USER}
+      - PAPERLESS_ADMIN_PASSWORD=${PAPERLESS_ADMIN_PASSWORD}
+      - PAPERLESS_REDIS=redis://redis:6379
+      - USERMAP_UID=1026
+      - USERMAP_GID=101
+      - PAPERLESS_TIME_ZONE=Europe/Berlin
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.paperless.rule=Host(`hds.paperless`)"
+      - "traefik.http.routers.paperless.entrypoints=http"
+      - "traefik.http.services.paperless.loadbalancer.server.port=8000"
+
 volumes:
   db_data:
 
@@ -107,3 +156,4 @@ networks:
   default:
     name: ${COMPOSE_NETWORK}
     external: ${COMPOSE_NETWORK_EXT}
+    driver: bridge
