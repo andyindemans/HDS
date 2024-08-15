@@ -17,5 +17,17 @@ setup_nextcloud_dir() {
 setup_nextcloud_dir "$NEXTCLOUD_DATA_DIR"
 setup_nextcloud_dir "$NEXTCLOUD_APP_DIR"
 
-# Optional: Verify directory creation and permissions
+# Verify directory creation and permissions
 ls -ld "$NEXTCLOUD_DATA_DIR" "$NEXTCLOUD_APP_DIR"
+
+
+setup_paperless_dir() {
+  local DIR_PATH=$1
+  [ ! -d "$DIR_PATH" ] && mkdir -p "$DIR_PATH" && echo "Directory $DIR_PATH created."
+}
+
+setup_paperless_dir "$PAPERLESS_DATA_DIR"
+setup_paperless_dir "$PAPERLESS_MEDIA_DIR"
+
+# Verify directory creation and permissions
+ls -ld "$PAPERLESS_DATA_DIR" "$PAPERLESS_MEDIA_DIR"
