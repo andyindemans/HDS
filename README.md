@@ -42,3 +42,24 @@ Verify `docker-compose` version.
 ```bash
 docker-compose --version
 ```
+
+# After installing Docker:
+
+## Free up the :53 UDP and TCP port
+
+The DNS server which is used to resolve the custom domain names within your home network, needs to use the :53 UDP and TCP port. This port is in most cases already in use by the OS, but can be disabled by following these steps. This is just an internal DNS-resolver and can safeley be disabled.
+
+Use your favorite editor (in my case Nano) and open the file:
+```bash
+sudo nano /etc/systemd/resolved.conf
+```
+
+Once you have opened this file, go ahead and uncomment `DNSStubListener` and change its value to `no`, so you end up with this line:
+```
+DNSStubListener=no
+```
+
+After changing this line, save and exit out of the editor, and restart the `systemd` service:
+```bash
+sudo systemctl restart systemd-resolved
+```

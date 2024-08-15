@@ -5,7 +5,7 @@ services:
     profiles:
       - traefik
       - backend
-    image: "traefik:v2.9"
+    image: docker.io/library/traefik:v3.1.2
     command:
       - "--api.insecure=true"
       - "--providers.docker=true"
@@ -29,7 +29,7 @@ services:
       - "./Docker/Traefik/acme.json:/acme.json"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.traefik.rule=Host(`traefik.localhost`)"
+      - "traefik.http.routers.traefik.rule=Host(`hds.traefik`)"
       - "traefik.http.routers.traefik.entrypoints=http"
       - "traefik.http.routers.traefik.service=api@internal"
       - "traefik.http.services.traefik.loadbalancer.server.port=8080"
@@ -44,10 +44,22 @@ services:
       - "${DOCKER_SOCK}:/var/run/docker.sock:ro"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dozzle.rule=Host(`dozzle.localhost`)"
+      - "traefik.http.routers.dozzle.rule=Host(`hds.dozzle`)"
       - "traefik.http.routers.dozzle.entrypoints=http"
       - "traefik.http.services.dozzle.loadbalancer.server.port=8080"
     restart: unless-stopped
+
+  dnsmasq:
+    image: jpillora/dnsmasq
+    container_name: hds-dns
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+    volumes:
+      - "./Docker/DNS/dnsmasq.conf:/etc/dnsmasq.conf"
+    restart: unless-stopped
+    environment:
+      - DNSMASQ_USER=${DNSMASQ_USER}
 
   nextcloud:
     image: "nextcloud"
@@ -63,9 +75,9 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.nextcloud.rule=Host(`nextcloud.localhost`)"
+      - "traefik.http.routers.nextcloud.rule=Host(`hds.nextcloud`)"
       - "traefik.http.routers.nextcloud.entrypoints=http"
-      - "traefik.http.routers.nextcloud-secure.rule=Host(`nextcloud.localhost`)"
+      - "traefik.http.routers.nextcloud-secure.rule=Host(`hds.nextcloud`)"
       - "traefik.http.routers.nextcloud-secure.entrypoints=https"
       - "traefik.http.routers.nextcloud-secure.tls.certresolver=mydnschallenge"
       - "traefik.http.services.nextcloud.loadbalancer.server.port=80"
