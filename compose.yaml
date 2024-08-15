@@ -67,7 +67,8 @@ services:
       - nextcloud
       - backend
     volumes:
-      - "/Data:/var/www/html/data"
+      - "${NEXTCLOUD_DIR}:/var/www/html"
+      - "${DATA_DIR}:/var/www/html/data"
     environment:
       - MYSQL_HOST=${MYSQL_HOST}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
