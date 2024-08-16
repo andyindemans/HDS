@@ -189,7 +189,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.files.rule=Host(`hds.files`)"
       - "traefik.http.routers.files.entrypoints=http"
-      - "traefik.http.services.files.loadbalancer.server.port=8099"
+      - "traefik.http.services.files.loadbalancer.server.port=80"
 
 volumes:
   db_data:
