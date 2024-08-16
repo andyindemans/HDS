@@ -28,8 +28,8 @@ setup_generic_dir() {
   [ ! -d "$DIR_PATH" ] && mkdir -p "$DIR_PATH" && echo "Directory $DIR_PATH created."
 }
 
-setup_generic_dir "$PAPERLESS_DATA_DIR"
-setup_generic_dir "$PAPERLESS_MEDIA_DIR"
+setup_dir_with_permissions "$PAPERLESS_DATA_DIR" "${APP_UID}:${APP_UID}"
+setup_dir_with_permissions "$PAPERLESS_MEDIA_DIR" "${APP_UID}:${APP_UID}"
 
 # Verify directory creation and permissions
 ls -ld "$PAPERLESS_DATA_DIR" "$PAPERLESS_MEDIA_DIR"
@@ -43,6 +43,7 @@ ls -ld "$JELLYFIN_CACHE_DIR" "$JELLYFIN_MEDIA_DIR"
 
 
 setup_dir_with_permissions "$FILEBROWSER_ROOT" "${APP_UID}:${APP_UID}"
+setup_dir_with_permissions "$FILEBROWSER_DATA_DIR" "${APP_UID}:${APP_UID}"
 
 # Verify directory creation and permissions
-ls -ld "$FILEBROWSER_ROOT"
+ls -ld "$FILEBROWSER_ROOT" "$FILEBROWSER_DATA_DIR"

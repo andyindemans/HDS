@@ -69,6 +69,8 @@ services:
     profiles:
       - nextcloud
       - backend
+    ports:
+      - "8098:80"
     volumes:
       - "${NEXTCLOUD_APP_DIR}:/var/www/html"
       - "${NEXTCLOUD_DATA_DIR}:/var/www/html/data"
@@ -139,8 +141,8 @@ services:
       - PAPERLESS_ADMIN_USER=${PAPERLESS_ADMIN_USER}
       - PAPERLESS_ADMIN_PASSWORD=${PAPERLESS_ADMIN_PASSWORD}
       - PAPERLESS_REDIS=redis://redis:6379
-      - USERMAP_UID=1026
-      - USERMAP_GID=101
+      - USERMAP_UID=${APP_UID}
+      - USERMAP_GID=${APP_GID}
       - PAPERLESS_TIME_ZONE=Europe/Berlin
     restart: unless-stopped
     labels:
@@ -174,11 +176,15 @@ services:
   filebrowser:
     image: filebrowser/filebrowser:latest
     container_name: hds-files
+    profiles:
+      - files
+      - media
     ports:
       - "8099:80"
     volumes:
-      - ${JELLYFIN_ROOT_DIR}:/srv
+      - ${JELLYFIN_MEDIA_DIR}:/srv/Media
       - ${FILEBROWSER_ROOT}:/database
+      - ${FILEBROWSER_DATA_DIR}:/srv
     environment:
       - FB_DATABASE=/database/filebrowser.db
       - FB_CONFIG=/database/filebrowser.json
