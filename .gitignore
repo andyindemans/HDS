@@ -4,8 +4,5 @@ venv/*
 *__pycache__*
 Docker/Traefik/acme.json
 
-# NextCloud
-Storage/NextCloud/*
-
-# Paperless
-Storage/Paperless/*
+# Storage
+Storage/*
