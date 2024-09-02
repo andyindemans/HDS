@@ -131,6 +131,8 @@ services:
       - FB_CONFIG=/database/filebrowser.json
       - UID=${APP_UID}
       - GID=${APP_GID}
+      - FB_AUTH_USER=${FILEBROWSER_USER}
+      - FB_AUTH_PASS=${FILEBROWSER_PASSWORD}
     restart: always
     labels:
       - "traefik.enable=true"
