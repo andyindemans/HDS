@@ -1,30 +1,13 @@
 ---
 name: hds
 services:
-  redis:
-    image: redis:alpine
-    container_name: hds-redis
-    profiles:
-      - redis
-      - media
-    ports:
-      - "6379:6379"
-    restart: unless-stopped
-    volumes:
-    - "./Docker/Redis/redis.conf:/usr/local/etc/redis/redis.conf"
-    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.redis.rule=Host(`hds.redis`)"
-      - "traefik.http.routers.redis.entrypoints=http"
-      - "traefik.http.services.redis.loadbalancer.server.port=6379"
-
   paperless-ngx:
     image: ghcr.io/paperless-ngx/paperless-ngx:latest
     container_name: hds-paperless
     profiles:
       - paperless
       - media
+      - external
     ports:
       - 8000:8000
     depends_on:
@@ -52,6 +35,7 @@ services:
     profiles:
       - jellyfin
       - media
+      - external
     volumes:
       - ${JELLYFIN_CACHE_DIR}:/cache
       - ${JELLYFIN_MEDIA_DIR}:/media
@@ -67,30 +51,6 @@ services:
       - "traefik.http.routers.jellyfin.rule=Host(`hds.jellyfin`)"
       - "traefik.http.routers.jellyfin.entrypoints=http"
       - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
-
-  filebrowser:
-    image: filebrowser/filebrowser:latest
-    container_name: hds-files
-    profiles:
-      - files
-      - media
-    ports:
-      - "8099:80"
-    volumes:
-      - ${JELLYFIN_MEDIA_DIR}:/srv/Media
-      - ${FILEBROWSER_ROOT}:/database
-      - ${FILEBROWSER_DATA_DIR}:/srv
-    environment:
-      - FB_DATABASE=/database/filebrowser.db
-      - FB_CONFIG=/database/filebrowser.json
-      - UID=${APP_UID}
-      - GID=${APP_GID}
-    restart: always
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.files.rule=Host(`hds.files`)"
-      - "traefik.http.routers.files.entrypoints=http"
-      - "traefik.http.services.files.loadbalancer.server.port=80"
 
 volumes:
   hds-jf-config:

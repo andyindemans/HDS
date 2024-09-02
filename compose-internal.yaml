@@ -5,6 +5,7 @@ services:
     profiles:
       - traefik
       - backend
+      - internal
     image: docker.io/library/traefik:v3.1.2
     container_name: hds-traefik
     command:
@@ -42,6 +43,7 @@ services:
     profiles:
       - dozzle
       - backend
+      - internal
     volumes:
       - "${DOCKER_SOCK}:/var/run/docker.sock:ro"
     labels:
@@ -52,6 +54,10 @@ services:
     restart: unless-stopped
 
   dnsmasq:
+    profiles:
+      - dnsmasq
+      - backend
+      - internal
     image: jpillora/dnsmasq
     container_name: hds-dns
     ports:
@@ -69,6 +75,7 @@ services:
     profiles:
       - nextcloud
       - backend
+      - internal
     ports:
       - "8098:80"
     volumes:
@@ -97,6 +104,7 @@ services:
     profiles:
       - db
       - backend
+      - internal
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
@@ -105,6 +113,48 @@ services:
     volumes:
       - "db_data:/var/lib/mysql"
     restart: unless-stopped
+
+  filebrowser:
+    image: filebrowser/filebrowser:latest
+    container_name: hds-files
+    profiles:
+      - files
+      - internal
+    ports:
+      - "8099:80"
+    volumes:
+      - ${JELLYFIN_MEDIA_DIR}:/srv/Media
+      - ${FILEBROWSER_ROOT}:/database
+      - ${FILEBROWSER_DATA_DIR}:/srv
+    environment:
+      - FB_DATABASE=/database/filebrowser.db
+      - FB_CONFIG=/database/filebrowser.json
+      - UID=${APP_UID}
+      - GID=${APP_GID}
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.files.rule=Host(`hds.files`)"
+      - "traefik.http.routers.files.entrypoints=http"
+      - "traefik.http.services.files.loadbalancer.server.port=80"
+
+  redis:
+    image: redis:alpine
+    container_name: hds-redis
+    profiles:
+      - redis
+      - internal
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    volumes:
+    - "./Docker/Redis/redis.conf:/usr/local/etc/redis/redis.conf"
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.redis.rule=Host(`hds.redis`)"
+      - "traefik.http.routers.redis.entrypoints=http"
+      - "traefik.http.services.redis.loadbalancer.server.port=6379"
 
 volumes:
   db_data:
