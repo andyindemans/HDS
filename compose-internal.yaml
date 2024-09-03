@@ -65,9 +65,9 @@ services:
       - "53:53/udp"
     volumes:
       - "./Docker/DNS/dnsmasq.conf:/etc/dnsmasq.conf"
-    restart: unless-stopped
     environment:
       - DNSMASQ_USER=${DNSMASQ_USER}
+    restart: always
 
   nextcloud:
     image: "nextcloud"

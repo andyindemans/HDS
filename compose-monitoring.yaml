@@ -1,0 +1,92 @@
+---
+name: hds
+services:
+  grafana:
+    image: grafana/grafana:latest
+    container_name: hds-grafana
+    profiles:
+      - grafana
+      - internal
+      - monitoring
+    ports:
+      - "3000:3000"
+    volumes:
+      - hds_grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`hds.grafana`)"
+      - "traefik.http.routers.grafana.entrypoints=http"
+      - "traefik.http.routers.grafana-secure.rule=Host(`hds.grafana`)"
+      - "traefik.http.routers.grafana-secure.entrypoints=https"
+      - "traefik.http.routers.grafana-secure.tls.certresolver=mydnschallenge"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: hds-prometheus
+    profiles:
+      - prometheus
+      - internal
+      - monitoring
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./Docker/Prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - hds_prometheus_data:/prometheus
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.rule=Host(`hds.prometheus`)"
+      - "traefik.http.routers.prometheus.entrypoints=http"
+      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+    restart: unless-stopped
+
+  node_exporter:
+    image: prom/node-exporter:latest
+    container_name: hds-node-exporter
+    profiles:
+      - node_exporter
+      - monitoring
+      - internal
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    pid: "host"  # To get access to host-level metrics
+    volumes:
+      - "/:/host:ro,rslave"  # Mounting the root filesystem for accurate readings
+    command:
+      - '--path.rootfs=/host'
+    labels:
+      - "traefik.enable=false"
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: hds-cadvisor
+    profiles:
+      - cadvisor
+      - monitoring
+      - internal
+    restart: unless-stopped
+    ports:
+      - "9101:8080"
+    volumes:
+      - "/var/lib/docker/:/var/lib/docker:ro"
+      - "${DOCKER_SOCK}:/var/run/docker.sock:ro"
+    labels:
+      - "traefik.enable=false"
+    command:
+      - "--v=2"
+      - "--docker_only=true"
+
+volumes:
+  hds_grafana_data:
+  hds_prometheus_data:
+
+networks:
+  default:
+    name: ${COMPOSE_NETWORK}
+    external: ${COMPOSE_NETWORK_EXT}
+    driver: bridge
