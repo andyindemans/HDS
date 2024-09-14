@@ -15,35 +15,22 @@ setup_dir_with_permissions() {
   echo "Permissions set for $DIR_PATH with ownership $USER_GROUP"
 }
 
-# Setup NextCloud data and app directories
-setup_dir_with_permissions "$NEXTCLOUD_DATA_DIR" "www-data:www-data"
-setup_dir_with_permissions "$NEXTCLOUD_APP_DIR" "www-data:www-data"
+# List of directories and their respective ownerships
+declare -A DIRS=(
+  ["$NEXTCLOUD_DATA_DIR"]="www-data:www-data"
+  ["$NEXTCLOUD_APP_DIR"]="www-data:www-data"
+  ["$PAPERLESS_DATA_DIR"]="${APP_UID}:${APP_UID}"
+  ["$PAPERLESS_MEDIA_DIR"]="${APP_UID}:${APP_UID}"
+  ["$JELLYFIN_CACHE_DIR"]="${APP_UID}:${APP_UID}"
+  ["$JELLYFIN_MEDIA_DIR"]="${APP_UID}:${APP_UID}"
+  ["$FILEBROWSER_ROOT"]="${APP_UID}:${APP_UID}"
+  ["$FILEBROWSER_DATA_DIR"]="${APP_UID}:${APP_UID}"
+)
+
+# Loop through directories and set them up
+for DIR in "${!DIRS[@]}"; do
+  setup_dir_with_permissions "$DIR" "${DIRS[$DIR]}"
+done
 
 # Verify directory creation and permissions
-ls -ld "$NEXTCLOUD_DATA_DIR" "$NEXTCLOUD_APP_DIR"
-
-
-setup_generic_dir() {
-  local DIR_PATH=$1
-  [ ! -d "$DIR_PATH" ] && mkdir -p "$DIR_PATH" && echo "Directory $DIR_PATH created."
-}
-
-setup_dir_with_permissions "$PAPERLESS_DATA_DIR" "${APP_UID}:${APP_UID}"
-setup_dir_with_permissions "$PAPERLESS_MEDIA_DIR" "${APP_UID}:${APP_UID}"
-
-# Verify directory creation and permissions
-ls -ld "$PAPERLESS_DATA_DIR" "$PAPERLESS_MEDIA_DIR"
-
-
-setup_dir_with_permissions "$JELLYFIN_CACHE_DIR" "${APP_UID}:${APP_UID}"
-setup_dir_with_permissions "$JELLYFIN_MEDIA_DIR" "${APP_UID}:${APP_UID}"
-
-# Verify directory creation and permissions
-ls -ld "$JELLYFIN_CACHE_DIR" "$JELLYFIN_MEDIA_DIR"
-
-
-setup_dir_with_permissions "$FILEBROWSER_ROOT" "${APP_UID}:${APP_UID}"
-setup_dir_with_permissions "$FILEBROWSER_DATA_DIR" "${APP_UID}:${APP_UID}"
-
-# Verify directory creation and permissions
-ls -ld "$FILEBROWSER_ROOT" "$FILEBROWSER_DATA_DIR"
+ls -ld "${!DIRS[@]}"

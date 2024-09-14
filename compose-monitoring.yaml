@@ -75,11 +75,12 @@ services:
     volumes:
       - "/var/lib/docker/:/var/lib/docker:ro"
       - "${DOCKER_SOCK}:/var/run/docker.sock:ro"
+      - /sys:/sys:ro
+      - /var/run:/var/run:rw
     labels:
       - "traefik.enable=false"
     command:
       - "--v=2"
-      - "--docker_only=true"
 
 volumes:
   hds_grafana_data:
