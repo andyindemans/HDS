@@ -46,6 +46,8 @@ services:
       - internal
     volumes:
       - "${DOCKER_SOCK}:/var/run/docker.sock:ro"
+     ports:
+      - "9999:8080"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dozzle.rule=Host(`hds.dozzle`)"
