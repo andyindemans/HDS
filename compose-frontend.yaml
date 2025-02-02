@@ -5,12 +5,31 @@ services:
   python-service-base:
     profiles:
       - base
-      - frontend
     build:
       context: ./Docker/Python-service-base
       dockerfile: docker/Dockerfile
     image: python-service-base:latest
     command: ["echo", "Base image built"]
+
+
+  jvv-app:
+    profiles:
+        - frontend
+    build:
+      context: ./Docker/JVV
+      dockerfile: docker/Dockerfile
+    container_name: jvv-app
+    ports:
+      - "5000:5000"
+    expose:
+      - 5000
+    environment:
+      - FLASK_ENV=development
+      - MAIL_SERVER=smtp.example.com
+      - MAIL_PORT=587
+      - MAIL_USE_TLS=True
+      - MAIL_USERNAME=your_email@example.com
+      - MAIL_PASSWORD=your_password  
 
 networks:
   default:

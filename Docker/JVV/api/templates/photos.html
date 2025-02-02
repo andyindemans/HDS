@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Photo Album</h1>
+<form method="POST" enctype="multipart/form-data">
+    <input type="file" name="photos" multiple>
+    <button type="submit">Upload</button>
+</form>
+<div class="photo-grid">
+    {% for photo in photos %}
+        <img src="{{ url_for('static', filename='../uploads/' + photo) }}" alt="Photo">
+    {% endfor %}
+</div>
+{% endblock %}
