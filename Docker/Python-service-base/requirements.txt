@@ -6,3 +6,4 @@ PyJWT==2.8.0
 apscheduler==3.10.4
 jsonschema==4.22.0
 prometheus_flask_exporter==0.23.0
+werkzeug

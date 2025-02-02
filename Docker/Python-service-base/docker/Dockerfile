@@ -17,3 +17,6 @@ FROM base-stage AS build-stage
 COPY api ./api
 
 RUN pip install --no-cache-dir -r requirements.txt --user app
+
+# RUN apt-get update && apt-get install -y gcc libffi-dev && \
+#     apt-get clean

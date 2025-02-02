@@ -1,0 +1,19 @@
+---
+name: hds
+services:
+ 
+  python-service-base:
+    profiles:
+      - base
+      - frontend
+    build:
+      context: ./Docker/Python-service-base
+      dockerfile: docker/Dockerfile
+    image: python-service-base:latest
+    command: ["echo", "Base image built"]
+
+networks:
+  default:
+    name: ${COMPOSE_NETWORK}
+    external: ${COMPOSE_NETWORK_EXT}
+    driver: bridge
