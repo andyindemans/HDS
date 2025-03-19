@@ -25,6 +25,8 @@ declare -A DIRS=(
   ["$JELLYFIN_MEDIA_DIR"]="${APP_UID}:${APP_UID}"
   ["$FILEBROWSER_ROOT"]="${APP_UID}:${APP_UID}"
   ["$FILEBROWSER_DATA_DIR"]="${APP_UID}:${APP_UID}"
+  ["$JVV_ROOT"]="${APP_UID}:${APP_UID}"
+  ["$JVV_DATA_DIR"]="${APP_UID}:${APP_UID}"
 )
 
 # Loop through directories and set them up

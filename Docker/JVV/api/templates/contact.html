@@ -1,11 +1,47 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>Contact Us</h1>
-<form method="POST">
-    <label for="subject">Subject:</label>
-    <input type="text" id="subject" name="subject" required>
-    <label for="body">Message:</label>
-    <textarea id="body" name="body" rows="4" required></textarea>
-    <button type="submit">Send Email</button>
-</form>
+<div class="contact-container">
+    <div class="contact-header">
+        <h1>How can I help you?</h1>
+        <p class="contact-subheader">Get answers by contacting me via email</p>
+    </div>
+    
+    <form method="POST" class="contact-form">
+        <div class="form-section">
+            <label for="subject" class="input-label">Subject</label>
+            <input 
+                type="text" 
+                id="subject" 
+                name="subject" 
+                class="form-input"
+                placeholder="Enter your subject"
+                required
+            >
+        </div>
+
+        <div class="form-section">
+            <label for="body" class="input-label">Message</label>
+            <textarea 
+                id="body" 
+                name="body" 
+                rows="6" 
+                class="form-textarea"
+                placeholder="Write your message or question here"
+                required
+            ></textarea>
+        </div>
+
+        <button type="submit" class="submit-button">Send Message</button>
+    </form>
+
+    <div class="contact-info">
+        <h2 class="info-title">Other ways to reach me</h2>
+        <div class="info-box">
+            <div class="info-item">
+                <h3>Via phone</h3>
+                <p>+324 11 88 11 88</p>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

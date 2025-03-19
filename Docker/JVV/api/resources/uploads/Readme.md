@@ -1,1 +1,0 @@
-This is where the images will be uploaded to whenever a user uploads images

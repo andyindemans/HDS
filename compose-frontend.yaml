@@ -29,7 +29,13 @@ services:
       - MAIL_PORT=587
       - MAIL_USE_TLS=True
       - MAIL_USERNAME=your_email@example.com
-      - MAIL_PASSWORD=your_password  
+      - MAIL_PASSWORD=your_password
+      - UID=${APP_UID}
+      - GID=${APP_GID}
+    user: ${APP_UID}:${APP_GID}
+    volumes:
+      - ${JVV_DATA_DIR}:/app/api/uploads
+    restart: unless-stopped
 
 networks:
   default:

@@ -1,5 +1,47 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>Welcome to Our Website</h1>
-<p>This is the home page where you can learn more about us!</p>
+<div class="hero">
+    <h1>Make your day unforgettable</h1>
+    <p>Welcome to our platform where you can share your experiences and eternalize your day and memories.</p>
+    <div class="cta-buttons">
+        <a href="{{ url_for('photos') }}" class="cta-button primary">Go to album</a>
+        <a href="{{ url_for('contact') }}" class="cta-button secondary">Your experiences</a>
+    </div>
+</div>
+
+<section class="features">
+    <div class="feature">
+        <img src="{{ url_for('static', filename='images/icon1.png') }}" alt="Feature 1">
+        <h3>Fast Performance</h3>
+        <p>Our platform ensures your applications run at lightning speed.</p>
+    </div>
+    <div class="feature">
+        <img src="{{ url_for('static', filename='images/icon2.png') }}" alt="Feature 2">
+        <h3>Scalable Solutions</h3>
+        <p>Build applications that grow with your business needs.</p>
+    </div>
+    <div class="feature">
+        <img src="{{ url_for('static', filename='images/icon3.png') }}" alt="Feature 3">
+        <h3>Modern Design</h3>
+        <p>Create stunning, user-friendly interfaces with ease.</p>
+    </div>
+</section>
+
+<section class="showcase">
+    <h2>What We Offer</h2>
+    <div class="showcase-grid">
+        <div class="showcase-item">
+            <img src="{{ url_for('static', filename='images/showcase1.jpg') }}" alt="Showcase 1">
+            <p>Seamless integration with modern tools.</p>
+        </div>
+        <div class="showcase-item">
+            <img src="{{ url_for('static', filename='images/showcase2.jpg') }}" alt="Showcase 2">
+            <p>Robust APIs for developers.</p>
+        </div>
+        <div class="showcase-item">
+            <img src="{{ url_for('static', filename='images/showcase3.jpg') }}" alt="Showcase 3">
+            <p>Community-driven support.</p>
+        </div>
+    </div>
+</section>
 {% endblock %}
