@@ -5,6 +5,8 @@ COPY --chmod=+x docker/entrypoint*.sh /
 
 COPY api ./api
 
+COPY requirements.txt .
+
 ### Build stage
 FROM base-stage AS build-stage
 

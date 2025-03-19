@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Docker Compose Graph</title>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style type="text/css">
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #1e1e1e;
+            color: #a0a0a0;
+        }
+        #network {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="network"></div>
+    <script type="text/javascript">
+        var container = document.getElementById('network');
+        var data = {
+            nodes: new vis.DataSet([]),
+            edges: new vis.DataSet([])
+        };
+        var options = {
+            nodes: {
+                shape: 'dot',
+                size: 10,
+                font: {
+                    color: '#a0a0a0',
+                    size: 15,
+                    face: 'arial',
+                    vadjust: 5 // Position label above the node
+                }
+            },
+            edges: {
+                width: 2,
+                smooth: {
+                    type: 'continuous'
+                }
+            },
+            physics: {
+                stabilization: false
+            }
+        };
+        var network = new vis.Network(container, data, options);
+
+        var lastData = null;
+
+        function fetchGraphData() {
+            fetch('/graph_data')
+                .then(response => response.json())
+                .then(newData => {
+                    // If lastData is null (on first run), initialize it to the new data
+                    if (lastData === null) {
+                        lastData = newData;
+                        data.nodes.clear();
+                        data.nodes.add(newData.nodes);
+                        data.edges.clear();
+                        data.edges.add(newData.edges);
+                        return; // Skip further processing on the first run
+                    }
+        
+                    // Sort nodes and edges based on their ID to ensure order doesn't affect comparison
+                    const sortedNodes = [...newData.nodes].sort((a, b) => a.id - b.id);
+                    const sortedEdges = [...newData.edges].sort((a, b) => {
+                        return a.from === b.from ? a.to - b.to : a.from - b.from;
+                    });
+        
+                    // Sort lastData nodes and edges to compare
+                    const sortedLastData = {
+                        nodes: [...lastData.nodes].sort((a, b) => a.id - b.id),
+                        edges: [...lastData.edges].sort((a, b) => {
+                            return a.from === b.from ? a.to - b.to : a.from - b.from;
+                        })
+                    };
+        
+                    // If the sorted new data is different from the last fetched data, update the graph
+                    if (JSON.stringify(sortedNodes) !== JSON.stringify(sortedLastData.nodes) || 
+                        JSON.stringify(sortedEdges) !== JSON.stringify(sortedLastData.edges)) {
+                        
+                        // Smoothly update nodes
+                        const updatedNodes = sortedNodes.filter(node => {
+                            return !lastData.nodes.some(lastNode => lastNode.id === node.id);
+                        });
+                        const removedNodes = lastData.nodes.filter(lastNode => {
+                            return !sortedNodes.some(node => node.id === lastNode.id);
+                        });
+        
+                        // Smoothly update edges
+                        const updatedEdges = sortedEdges.filter(edge => {
+                            return !lastData.edges.some(lastEdge => lastEdge.from === edge.from && lastEdge.to === edge.to);
+                        });
+                        const removedEdges = lastData.edges.filter(lastEdge => {
+                            return !sortedEdges.some(edge => edge.from === lastEdge.from && edge.to === lastEdge.to);
+                        });
+        
+                        // Update the graph data
+                        if (updatedNodes.length > 0) {
+                            data.nodes.add(updatedNodes);
+                        }
+                        if (removedNodes.length > 0) {
+                            data.nodes.remove(removedNodes);
+                        }
+                        if (updatedEdges.length > 0) {
+                            data.edges.add(updatedEdges);
+                        }
+                        if (removedEdges.length > 0) {
+                            data.edges.remove(removedEdges);
+                        }
+        
+                        // Set the lastData to the new data
+                        lastData = newData;
+                    }
+                })
+                .catch(error => console.error('Error fetching graph data:', error));
+        }
+
+        fetchGraphData();
+        setInterval(fetchGraphData, 5000);
+    </script>
+</body>
+</html>

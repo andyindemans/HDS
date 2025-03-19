@@ -1,0 +1,14 @@
+docker
+networkx
+matplotlib
+Flask==3.0.3
+Flask-RESTful==0.3.10
+Flask-Mail==0.10.0
+requests==2.31.0
+PyJWT==2.8.0
+apscheduler==3.10.4
+jsonschema==4.22.0
+prometheus_flask_exporter==0.23.0
+werkzeug
+gunicorn==22.0.0
+pyyaml

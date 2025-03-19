@@ -37,6 +37,26 @@ services:
       - ${JVV_DATA_DIR}:/app/api/uploads
     restart: unless-stopped
 
+  nodegraph:
+    profiles:
+        - frontend
+    build:
+      context: ./Docker/Nodegraph
+      dockerfile: docker/Dockerfile
+    container_name: hds-nodegraph
+    ports:
+      - "5001:5001"
+    expose:
+      - 5001
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - FLASK_ENV=development
+      - UID=${APP_UID}
+      - GID=${APP_GID}
+    user: ${APP_UID}:${APP_GID}
+    restart: unless-stopped
+
 networks:
   default:
     name: ${COMPOSE_NETWORK}
